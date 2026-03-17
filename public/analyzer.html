@@ -12,34 +12,53 @@
 <input id="url" placeholder="https://example.com">
 <button onclick="analyze()">Analyze</button>
 
-<ul id="result"></ul>
+<div id="result"></div>
 
 <script>
-
 async function analyze(){
 
+console.log("CLICK OK");
+
 const url = document.getElementById("url").value;
+const result = document.getElementById("result");
+
+result.innerHTML = "Loading...";
+
+try{
 
 const res = await fetch("/api/analyze",{
 method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({url})
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({ url: url })
 });
 
 const data = await res.json();
 
-const result = document.getElementById("result");
+console.log(data);
+
+if(data.error){
+result.innerHTML = "❌ " + data.error;
+return;
+}
 
 result.innerHTML = `
-<li>Title : ${data.title}</li>
-<li>Meta description : ${data.description}</li>
-<li>H1 : ${data.h1}</li>
-<li>Images : ${data.images}</li>
-<li>Images ALT : ${data.imagesAlt}</li>
+<p>Title: ${data.title}</p>
+<p>Description: ${data.description}</p>
+<p>H1: ${data.h1}</p>
+<p>Images: ${data.images}</p>
+<p>Images ALT: ${data.imagesAlt}</p>
 `;
+
+}catch(err){
+
+console.error(err);
+result.innerHTML = "❌ Error";
 
 }
 
+}
 </script>
 
 </body>
