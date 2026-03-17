@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>SEO Title Generator</title>
+</head>
+
+<body>
+
+<h1>SEO Title Generator</h1>
+
+<input id="keyword" placeholder="keyword">
+
+<button onclick="generate()">Generate</button>
+
+<ul id="results"></ul>
+
+<script>
+
+async function generate(){
+
+const keyword = document.getElementById("keyword").value;
+
+const response = await fetch("/api/titles",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({keyword})
+
+});
+
+const data = await response.json();
+
+const list = document.getElementById("results");
+
+list.innerHTML="";
+
+data.forEach(t=>{
+
+const li = document.createElement("li");
+
+li.textContent = t;
+
+list.appendChild(li);
+
+});
+
+}
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Keyword Questions</title>
+</head>
+
+<body>
+
+<h1>Keyword Questions</h1>
+
+<input id="keyword" placeholder="keyword">
+
+<button onclick="search()">Search</button>
+
+<ul id="results"></ul>
+
+<script>
+
+async function search(){
+
+const keyword = document.getElementById("keyword").value;
+
+const response = await fetch("/api/questions",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({keyword})
+
+});
+
+const data = await response.json();
+
+const list = document.getElementById("results");
+
+list.innerHTML="";
+
+data.forEach(q=>{
+
+const li = document.createElement("li");
+
+li.textContent = q;
+
+list.appendChild(li);
+
+});
+
+}
+
+</script>
+
+</body>
+</html>

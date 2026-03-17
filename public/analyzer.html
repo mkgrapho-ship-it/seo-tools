@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>SEO Analyzer</title>
+</head>
+
+<body>
+
+<h1>SEO Analyzer</h1>
+
+<input id="url" placeholder="https://example.com">
+<button onclick="analyze()">Analyze</button>
+
+<ul id="result"></ul>
+
+<script>
+
+async function analyze(){
+
+const url = document.getElementById("url").value;
+
+const res = await fetch("/api/analyze",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({url})
+});
+
+const data = await res.json();
+
+const result = document.getElementById("result");
+
+result.innerHTML = `
+<li>Title : ${data.title}</li>
+<li>Meta description : ${data.description}</li>
+<li>H1 : ${data.h1}</li>
+<li>Images : ${data.images}</li>
+<li>Images ALT : ${data.imagesAlt}</li>
+`;
+
+}
+
+</script>
+
+</body>
+
+</html>
