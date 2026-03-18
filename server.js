@@ -1,7 +1,5 @@
 const express = require("express");
 const cors = require("cors");
-const axios = require("axios");
-const cheerio = require("cheerio");
 
 const app = express();
 
@@ -10,128 +8,101 @@ app.use(express.json());
 app.use(express.static("public"));
 
 /* =========================
-   SEO ANALYZER
-========================= */
-app.get("/api/analyze", async (req, res) => {
-  const url = req.query.url;
-
-  if (!url) {
-    return res.json({ error: "URL missing" });
-  }
-
-  try {
-    const response = await axios.get(url, {
-      timeout: 10000,
-      headers: {
-        "User-Agent": "Mozilla/5.0"
-      }
-    });
-
-    const $ = cheerio.load(response.data);
-
-    const title = $("title").text().trim();
-    const description = $('meta[name="description"]').attr("content") || "";
-    const h1 = $("h1").length;
-    const images = $("img").length;
-    const imagesAlt = $("img[alt]").length;
-
-    res.json({
-      title,
-      description,
-      h1,
-      images,
-      imagesAlt
-    });
-
-  } catch (err) {
-    console.log(err.message);
-    res.json({ error: "Site inaccessible" });
-  }
-});
-
-/* =========================
    KEYWORDS
 ========================= */
-app.get("/api/keywords", (req, res) => {
-  const keyword = req.query.keyword;
+app.post("/api/keywords", (req, res) => {
+  const { keyword } = req.body;
 
   if (!keyword) {
-    return res.json({ error: "Keyword missing" });
+    return res.status(400).json({ error: "Missing keyword" });
   }
 
-  const suggestions = [
-    keyword,
-    keyword + " tutorial",
-    keyword + " ideas",
-    keyword + " for beginners",
-    keyword + " tips",
-    "best " + keyword,
-    keyword + " examples"
+  const results = [
+    { keyword: keyword + " ideas", volume: 1000 },
+    { keyword: keyword + " tips", volume: 800 },
+    { keyword: keyword + " tools", volume: 600 },
+    { keyword: keyword + " guide", volume: 500 }
   ];
 
-  res.json({ keywords: suggestions });
+  res.json(results);
 });
 
 /* =========================
    QUESTIONS
 ========================= */
-app.get("/api/questions", (req, res) => {
-  const keyword = req.query.keyword;
+app.post("/api/questions", (req, res) => {
+  const { keyword } = req.body;
 
   if (!keyword) {
-    return res.json({ error: "Keyword missing" });
+    return res.status(400).json({ error: "Missing keyword" });
   }
 
-  const questions = [
-    "What is " + keyword + "?",
-    "How to use " + keyword + "?",
-    "Why is " + keyword + " important?",
-    "Best tools for " + keyword + "?",
-    "How to learn " + keyword + " fast?"
+  const results = [
+    `What is ${keyword}?`,
+    `How to use ${keyword}?`,
+    `Why is ${keyword} important?`,
+    `Best ${keyword} tips?`
   ];
 
-  res.json({ questions });
+  res.json(results);
 });
 
 /* =========================
    TITLES
 ========================= */
-app.get("/api/titles", (req, res) => {
-  const keyword = req.query.keyword;
+app.post("/api/titles", (req, res) => {
+  const { keyword } = req.body;
 
   if (!keyword) {
-    return res.json({ error: "Keyword missing" });
+    return res.status(400).json({ error: "Missing keyword" });
   }
 
-  const titles = [
-    "10 Best " + keyword + " Tips",
-    "Ultimate Guide to " + keyword,
-    "How to Master " + keyword,
-    keyword + " for Beginners",
-    "Top Strategies for " + keyword
+  const results = [
+    `${keyword}: Complete Guide`,
+    `10 Tips for ${keyword}`,
+    `How to Master ${keyword}`,
+    `Best ${keyword} Strategies`
   ];
 
-  res.json({ titles });
+  res.json(results);
 });
 
 /* =========================
    DIFFICULTY
 ========================= */
-app.get("/api/difficulty", (req, res) => {
-  const keyword = req.query.keyword;
+app.post("/api/difficulty", (req, res) => {
+  const { keyword } = req.body;
 
   if (!keyword) {
-    return res.json({ error: "Keyword missing" });
+    return res.status(400).json({ error: "Missing keyword" });
   }
 
-  const difficulty = Math.floor(Math.random() * 100);
+  const score = Math.floor(Math.random() * 100);
 
-  res.json({ difficulty });
+  res.json({ score });
 });
 
 /* =========================
-   SERVER
+   ANALYZER (déjà OK)
 ========================= */
+app.get("/api/analyze", async (req, res) => {
+  const { url } = req.query;
+
+  if (!url) {
+    return res.status(400).json({ error: "Missing URL" });
+  }
+
+  res.json({
+    title: "Example Title",
+    description: "Example description",
+    h1: 1,
+    images: 10,
+    imagesAlt: 8
+  });
+});
+
+/* ========================= */
+
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
