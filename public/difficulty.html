@@ -20,22 +20,24 @@
 </nav>
 
 <div class="container">
+
   <div class="tool-box">
 
     <h1>Keyword Difficulty</h1>
 
     <div class="input-group">
       <input id="keyword" placeholder="Enter keyword">
-      <button onclick="run()">Analyze</button>
+      <button onclick="run()">Check</button>
     </div>
 
-    <div id="result" class="results-area"></div>
+    <div id="result" class="result"></div>
 
   </div>
+
 </div>
 
 <script>
-function run(){
+async function run(){
 
   const keyword = document.getElementById("keyword").value;
   const result = document.getElementById("result");
@@ -45,18 +47,33 @@ function run(){
     return;
   }
 
-  const score = Math.floor(Math.random() * 100);
+  result.innerHTML = "Loading...";
 
-  let level = "Easy";
-  if(score > 70) level = "Hard";
-  else if(score > 40) level = "Medium";
+  try{
 
-  result.innerHTML = `
-    <div class="result-item">
-      Keyword: ${keyword}<br>
-      Difficulty: ${score}/100 (${level})
-    </div>
-  `;
+    const res = await fetch("/api/difficulty?keyword=" + encodeURIComponent(keyword));
+    const data = await res.json();
+
+    console.log(data);
+
+    if(data.error){
+      result.innerHTML = "❌ " + data.error;
+      return;
+    }
+
+    // Gestion flexible selon backend
+    const difficulty = data.difficulty ?? data.score ?? data;
+
+    result.innerHTML = `
+      <div class="result-item">
+        Difficulty: <strong>${difficulty}</strong>
+      </div>
+    `;
+
+  }catch(err){
+    console.error(err);
+    result.innerHTML = "❌ Server error";
+  }
 
 }
 </script>

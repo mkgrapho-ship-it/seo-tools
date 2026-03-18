@@ -2,7 +2,7 @@
 <html>
 
 <head>
-  <title>Title Generator</title>
+  <title>Titles Generator</title>
   <link rel="stylesheet" href="style.css">
 </head>
 
@@ -20,18 +20,20 @@
 </nav>
 
 <div class="container">
+
   <div class="tool-box">
 
-    <h1>Title Generator</h1>
+    <h1>Titles Generator</h1>
 
     <div class="input-group">
       <input id="keyword" placeholder="Enter keyword">
       <button onclick="run()">Generate</button>
     </div>
 
-    <div id="result" class="results-area"></div>
+    <div id="result" class="result"></div>
 
   </div>
+
 </div>
 
 <script>
@@ -40,24 +42,34 @@ async function run(){
   const keyword = document.getElementById("keyword").value;
   const result = document.getElementById("result");
 
+  if(!keyword){
+    result.innerHTML = "❌ Enter a keyword";
+    return;
+  }
+
   result.innerHTML = "Loading...";
 
   try{
 
-    const res = await fetch("/api/titles",{
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body:JSON.stringify({ keyword })
-    });
-
+    const res = await fetch("/api/titles?keyword=" + encodeURIComponent(keyword));
     const data = await res.json();
 
-    result.innerHTML = data.map(t =>
+    console.log(data);
+
+    if(data.error){
+      result.innerHTML = "❌ " + data.error;
+      return;
+    }
+
+    const titles = data.titles || data;
+
+    result.innerHTML = titles.map(t =>
       `<div class="result-item">${t}</div>`
     ).join("");
 
   }catch(err){
-    result.innerHTML = "❌ Error";
+    console.error(err);
+    result.innerHTML = "❌ Server error";
   }
 
 }

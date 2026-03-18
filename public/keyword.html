@@ -30,8 +30,7 @@
       <button onclick="run()">Generate</button>
     </div>
 
-    <div id="result" class="results-area"></div>
-
+<div id="result" class="result"></div>
   </div>
 
 </div>
@@ -42,27 +41,38 @@ async function run(){
   const keyword = document.getElementById("keyword").value;
   const result = document.getElementById("result");
 
+  if(!keyword){
+    result.innerHTML = "❌ Enter a keyword";
+    return;
+  }
+
   result.innerHTML = "Loading...";
 
   try{
 
-    const res = await fetch("/api/keywords",{
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body:JSON.stringify({ keyword })
-    });
-
+    const res = await fetch("/api/keywords?keyword=" + encodeURIComponent(keyword));
     const data = await res.json();
 
-    result.innerHTML = data.map(k =>
+    console.log(data);
+
+    if(data.error){
+      result.innerHTML = "❌ " + data.error;
+      return;
+    }
+
+    // cas 1 : tableau direct
+    const keywords = data.keywords || data;
+
+    result.innerHTML = keywords.map(k =>
       `<div class="result-item">
-        ${k.keyword} 
-        <span>Vol: ${k.volume}</span>
+        ${k.keyword || k}
+        ${k.volume ? `<span>Vol: ${k.volume}</span>` : ""}
       </div>`
     ).join("");
 
   }catch(err){
-    result.innerHTML = "❌ Error";
+    console.error(err);
+    result.innerHTML = "❌ Server error";
   }
 
 }

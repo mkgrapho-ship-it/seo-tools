@@ -20,6 +20,7 @@
 </nav>
 
 <div class="container">
+
   <div class="tool-box">
 
     <h1>Questions Generator</h1>
@@ -29,9 +30,10 @@
       <button onclick="run()">Generate</button>
     </div>
 
-    <div id="result" class="results-area"></div>
+    <div id="result" class="result"></div>
 
   </div>
+
 </div>
 
 <script>
@@ -40,24 +42,34 @@ async function run(){
   const keyword = document.getElementById("keyword").value;
   const result = document.getElementById("result");
 
+  if(!keyword){
+    result.innerHTML = "❌ Enter a keyword";
+    return;
+  }
+
   result.innerHTML = "Loading...";
 
   try{
 
-    const res = await fetch("/api/questions",{
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body:JSON.stringify({ keyword })
-    });
-
+    const res = await fetch("/api/questions?keyword=" + encodeURIComponent(keyword));
     const data = await res.json();
 
-    result.innerHTML = data.map(q =>
+    console.log(data);
+
+    if(data.error){
+      result.innerHTML = "❌ " + data.error;
+      return;
+    }
+
+    const questions = data.questions || data;
+
+    result.innerHTML = questions.map(q =>
       `<div class="result-item">${q}</div>`
     ).join("");
 
   }catch(err){
-    result.innerHTML = "❌ Error";
+    console.error(err);
+    result.innerHTML = "❌ Server error";
   }
 
 }
