@@ -3,108 +3,161 @@ const cors = require("cors");
 
 const app = express();
 
+/* =========================
+   MIDDLEWARE (IMPORTANT)
+========================= */
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: "1mb" }));
+app.use(express.urlencoded({ extended: true }));
+
 app.use(express.static("public"));
+
+/* =========================
+   TEST ROUTE
+========================= */
+app.get("/api/test", (req, res) => {
+  res.json({ message: "API OK" });
+});
 
 /* =========================
    KEYWORDS
 ========================= */
 app.post("/api/keywords", (req, res) => {
-  const { keyword } = req.body;
+  console.log("KEYWORDS BODY:", req.body);
 
-  if (!keyword) {
-    return res.status(400).json({ error: "Missing keyword" });
+  try {
+    const { keyword } = req.body;
+
+    if (!keyword) {
+      return res.status(400).json({ error: "Missing keyword" });
+    }
+
+    const results = [
+      { keyword: keyword + " ideas", volume: 1000 },
+      { keyword: keyword + " tips", volume: 800 },
+      { keyword: keyword + " tools", volume: 600 },
+      { keyword: keyword + " guide", volume: 500 }
+    ];
+
+    res.json(results);
+
+  } catch (err) {
+    console.error("KEYWORDS ERROR:", err);
+    res.status(500).json({ error: "Server error" });
   }
-
-  const results = [
-    { keyword: keyword + " ideas", volume: 1000 },
-    { keyword: keyword + " tips", volume: 800 },
-    { keyword: keyword + " tools", volume: 600 },
-    { keyword: keyword + " guide", volume: 500 }
-  ];
-
-  res.json(results);
 });
 
 /* =========================
    QUESTIONS
 ========================= */
 app.post("/api/questions", (req, res) => {
-  const { keyword } = req.body;
+  console.log("QUESTIONS BODY:", req.body);
 
-  if (!keyword) {
-    return res.status(400).json({ error: "Missing keyword" });
+  try {
+    const { keyword } = req.body;
+
+    if (!keyword) {
+      return res.status(400).json({ error: "Missing keyword" });
+    }
+
+    const results = [
+      `What is ${keyword}?`,
+      `How to use ${keyword}?`,
+      `Why is ${keyword} important?`,
+      `Best ${keyword} tips?`
+    ];
+
+    res.json(results);
+
+  } catch (err) {
+    console.error("QUESTIONS ERROR:", err);
+    res.status(500).json({ error: "Server error" });
   }
-
-  const results = [
-    `What is ${keyword}?`,
-    `How to use ${keyword}?`,
-    `Why is ${keyword} important?`,
-    `Best ${keyword} tips?`
-  ];
-
-  res.json(results);
 });
 
 /* =========================
    TITLES
 ========================= */
 app.post("/api/titles", (req, res) => {
-  const { keyword } = req.body;
+  console.log("TITLES BODY:", req.body);
 
-  if (!keyword) {
-    return res.status(400).json({ error: "Missing keyword" });
+  try {
+    const { keyword } = req.body;
+
+    if (!keyword) {
+      return res.status(400).json({ error: "Missing keyword" });
+    }
+
+    const results = [
+      `${keyword}: Complete Guide`,
+      `10 Tips for ${keyword}`,
+      `How to Master ${keyword}`,
+      `Best ${keyword} Strategies`
+    ];
+
+    res.json(results);
+
+  } catch (err) {
+    console.error("TITLES ERROR:", err);
+    res.status(500).json({ error: "Server error" });
   }
-
-  const results = [
-    `${keyword}: Complete Guide`,
-    `10 Tips for ${keyword}`,
-    `How to Master ${keyword}`,
-    `Best ${keyword} Strategies`
-  ];
-
-  res.json(results);
 });
 
 /* =========================
    DIFFICULTY
 ========================= */
 app.post("/api/difficulty", (req, res) => {
-  const { keyword } = req.body;
+  console.log("DIFFICULTY BODY:", req.body);
 
-  if (!keyword) {
-    return res.status(400).json({ error: "Missing keyword" });
+  try {
+    const { keyword } = req.body;
+
+    if (!keyword) {
+      return res.status(400).json({ error: "Missing keyword" });
+    }
+
+    const score = Math.floor(Math.random() * 100);
+
+    res.json({ score });
+
+  } catch (err) {
+    console.error("DIFFICULTY ERROR:", err);
+    res.status(500).json({ error: "Server error" });
   }
-
-  const score = Math.floor(Math.random() * 100);
-
-  res.json({ score });
 });
 
 /* =========================
-   ANALYZER (déjà OK)
+   ANALYZER
 ========================= */
-app.get("/api/analyze", async (req, res) => {
-  const { url } = req.query;
+app.get("/api/analyze", (req, res) => {
+  console.log("ANALYZE URL:", req.query.url);
 
-  if (!url) {
-    return res.status(400).json({ error: "Missing URL" });
+  try {
+    const { url } = req.query;
+
+    if (!url) {
+      return res.status(400).json({ error: "Missing URL" });
+    }
+
+    res.json({
+      title: "Exemple de titre",
+      description: "Exemple de description",
+      h1: 1,
+      images: 10,
+      imagesAlt: 8
+    });
+
+  } catch (err) {
+    console.error("ANALYZE ERROR:", err);
+    res.status(500).json({ error: "Server error" });
   }
-
-  res.json({
-    title: "Example Title",
-    description: "Example description",
-    h1: 1,
-    images: 10,
-    imagesAlt: 8
-  });
 });
 
-/* ========================= */
-
+/* =========================
+   START SERVER
+========================= */
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log("Server running on port " + PORT);
+  console.log("✅ Server running on port " + PORT);
 });
