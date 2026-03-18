@@ -1,54 +1,139 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="fr">
 <head>
-  <title>Keyword Generator</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>SEO Tool - Keywords</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      background: #f5f6fa;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 220px;
+      height: 100vh;
+      background: #0f172a;
+      color: white;
+      padding: 20px;
+    }
+
+    .sidebar h2 {
+      margin-bottom: 20px;
+    }
+
+    .sidebar a {
+      display: block;
+      color: #cbd5e1;
+      text-decoration: none;
+      margin: 10px 0;
+      padding: 8px;
+      border-radius: 6px;
+    }
+
+    .sidebar a:hover {
+      background: #1e293b;
+      color: white;
+    }
+
+    /* MAIN */
+    .main {
+      flex: 1;
+      padding: 40px;
+    }
+
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      max-width: 600px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    input {
+      padding: 10px;
+      width: 60%;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      padding: 10px 15px;
+      border: none;
+      background: #6366f1;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-left: 10px;
+    }
+
+    button:hover {
+      background: #4f46e5;
+    }
+
+    .results {
+      margin-top: 20px;
+    }
+
+    .item {
+      background: #f1f5f9;
+      padding: 10px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+  </style>
 </head>
 
 <body>
 
-<div class="app">
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <h2>🚀 SEO Tool</h2>
 
-  <!-- SIDEBAR -->
-  <div class="sidebar">
-    <h2>🚀 SEO Tool</h2>
-    <a href="index.html">🏠 Dashboard</a>
-    <a href="keyword.html">🔑 Keywords</a>
-    <a href="questions.html">❓ Questions</a>
-    <a href="titles.html">📝 Titles</a>
-    <a href="difficulty.html">📊 Difficulty</a>
-    <a href="analyzer.html">🔍 Analyzer</a>
-  </div>
+  <a href="index.html">🏠 Dashboard</a>
+  <a href="keyword.html">🔑 Keywords</a>
+  <a href="questions.html">❓ Questions</a>
+  <a href="titles.html">📝 Titles</a>
+  <a href="difficulty.html">📊 Difficulty</a>
+  <a href="analyzer.html">🔍 Analyzer</a>
+</div>
 
-  <!-- MAIN -->
-  <div class="main">
+<!-- MAIN -->
+<div class="main">
 
-    <div class="tool-box">
+  <div class="card">
 
-      <h1>Générateur de mots clés</h1>
+    <h1>Générateur de mots clés</h1>
 
-      <div class="input-group">
-        <input id="keyword" placeholder="Ex: cuisine, sport...">
-        <button onclick="run()">Générer</button>
-      </div>
+    <input id="keyword" placeholder="Ex: cuisine">
+    <button id="generateBtn">Générer</button>
 
-      <div id="result" class="results-area"></div>
-
-    </div>
+    <div id="result" class="results"></div>
 
   </div>
 
 </div>
 
+<!-- SCRIPT -->
 <script>
+document.getElementById("generateBtn").addEventListener("click", run);
+
 async function run(){
 
   const keyword = document.getElementById("keyword").value.trim();
   const result = document.getElementById("result");
 
   if(!keyword){
-    result.innerHTML = "⚠️ Entrez un mot-clé";
+    result.innerHTML = "⚠️ Entrez un mot clé";
     return;
   }
 
@@ -56,29 +141,21 @@ async function run(){
 
   try{
 
-    const res = await fetch("/api/keywords",{
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body:JSON.stringify({ keyword })
+    const res = await fetch("/api/keywords", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ keyword })
     });
+
+    if(!res.ok){
+      throw new Error("API error");
+    }
 
     const data = await res.json();
 
-    // 🔥 gestion erreur backend
-    if(!res.ok || data.error){
-      result.innerHTML = "❌ Erreur serveur";
-      return;
-    }
-
-    if(!data.length){
-      result.innerHTML = "⚠️ Aucun résultat";
-      return;
-    }
-
     result.innerHTML = data.map(k => `
-      <div class="result-item">
-        <strong>${k.keyword}</strong>
-        <span>Volume: ${k.volume || 0}</span>
+      <div class="item">
+        <strong>${k.keyword}</strong> — Volume: ${k.volume}
       </div>
     `).join("");
 
@@ -86,7 +163,6 @@ async function run(){
     console.error(err);
     result.innerHTML = "❌ Erreur serveur";
   }
-
 }
 </script>
 
