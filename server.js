@@ -23,28 +23,50 @@ app.get("/api/test", (req, res) => {
    KEYWORDS
 ========================= */
 app.post("/api/keywords", (req, res) => {
-  console.log("KEYWORDS BODY:", req.body);
 
-  try {
-    const { keyword } = req.body;
+  const { keyword } = req.body;
 
-    if (!keyword) {
-      return res.status(400).json({ error: "Missing keyword" });
-    }
-
-    const results = [
-      { keyword: keyword + " ideas", volume: 1000 },
-      { keyword: keyword + " tips", volume: 800 },
-      { keyword: keyword + " tools", volume: 600 },
-      { keyword: keyword + " guide", volume: 500 }
-    ];
-
-    res.json(results);
-
-  } catch (err) {
-    console.error("KEYWORDS ERROR:", err);
-    res.status(500).json({ error: "Server error" });
+  if (!keyword) {
+    return res.status(400).json({ error: "Missing keyword" });
   }
+
+  const prefixes = [
+    "best", "top", "cheap", "free", "online", "buy", "download",
+    "how to", "what is", "why", "guide", "tips", "ideas"
+  ];
+
+  const suffixes = [
+    "2026", "for beginners", "for kids", "for business",
+    "tools", "software", "course", "examples"
+  ];
+
+  let results = [];
+
+  prefixes.forEach(p => {
+    results.push({
+      keyword: `${p} ${keyword}`,
+      volume: Math.floor(Math.random() * 1000)
+    });
+  });
+
+  suffixes.forEach(s => {
+    results.push({
+      keyword: `${keyword} ${s}`,
+      volume: Math.floor(Math.random() * 1000)
+    });
+  });
+
+  // combinaison
+  prefixes.forEach(p => {
+    suffixes.forEach(s => {
+      results.push({
+        keyword: `${p} ${keyword} ${s}`,
+        volume: Math.floor(Math.random() * 1000)
+      });
+    });
+  });
+
+  res.json(results);
 });
 
 /* =========================
