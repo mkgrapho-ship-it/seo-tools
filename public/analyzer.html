@@ -15,52 +15,34 @@
 <div id="result"></div>
 
 <script>
-async function analyze(){
+<script>
+async function analyze() {
+  const url = document.getElementById("url").value;
+  const result = document.getElementById("result");
 
-console.log("CLICK OK");
+  result.innerHTML = "Loading...";
 
-const url = document.getElementById("url").value;
-const result = document.getElementById("result");
+  try {
+    const res = await fetch("/api/analyze?url=" + encodeURIComponent(url));
+    const data = await res.json();
 
-result.innerHTML = "Loading...";
+    if (data.error) {
+      result.innerHTML = "<p style='color:red'>" + data.error + "</p>";
+      return;
+    }
 
-try{
-
-const res = await fetch("/api/analyze",{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({ url: url })
-});
-
-const data = await res.json();
-
-console.log(data);
-
-if(data.error){
-result.innerHTML = "❌ " + data.error;
-return;
-}
-
-result.innerHTML = `
-<p>Title: ${data.title}</p>
-<p>Description: ${data.description}</p>
-<p>H1: ${data.h1}</p>
-<p>Images: ${data.images}</p>
-<p>Images ALT: ${data.imagesAlt}</p>
-`;
-
-}catch(err){
-
-console.error(err);
-result.innerHTML = "❌ Error";
-
-}
-
+    result.innerHTML = `
+      <li><b>Title:</b> ${data.title ? "OK" : "Missing"}</li>
+      <li><b>Description:</b> ${data.description ? "OK" : "Missing"}</li>
+      <li><b>H1:</b> ${data.h1 > 0 ? "OK" : "Missing"}</li>
+      <li><b>Images:</b> ${data.images}</li>
+      <li><b>Images ALT:</b> ${data.imagesAlt}</li>
+    `;
+  } catch (err) {
+    result.innerHTML = "<p style='color:red'>Erreur réseau</p>";
+  }
 }
 </script>
-
 </body>
 
 </html>
