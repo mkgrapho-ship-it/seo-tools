@@ -1,59 +1,52 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="fr">
 <head>
-  <title>Questions Generator</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<title>SEO Tool - Questions</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body { margin:0; font-family:Arial; display:flex; background:#f5f6fa; }
+.sidebar { width:220px; height:100vh; background:#0f172a; color:white; padding:20px; }
+.sidebar a { display:block; color:#cbd5e1; text-decoration:none; margin:10px 0; padding:8px; }
+.sidebar a:hover { background:#1e293b; color:white; }
+.main { flex:1; padding:40px; }
+.card { background:white; padding:30px; border-radius:12px; max-width:600px; }
+.item { background:#f1f5f9; padding:10px; margin:10px 0; border-radius:6px; }
+</style>
 </head>
 
 <body>
 
-<div class="app">
+<div class="sidebar">
+  <h2>🚀 SEO Tool</h2>
+  <a href="index.html">🏠 Dashboard</a>
+  <a href="keyword.html">🔑 Keywords</a>
+  <a href="questions.html">❓ Questions</a>
+  <a href="titles.html">📝 Titles</a>
+  <a href="difficulty.html">📊 Difficulty</a>
+  <a href="analyzer.html">🔍 Analyzer</a>
+</div>
 
-  <div class="sidebar">
-    <h2>🚀 SEO Tool</h2>
-    <a href="index.html">🏠 Dashboard</a>
-    <a href="keyword.html">🔑 Keywords</a>
-    <a href="questions.html">❓ Questions</a>
-    <a href="titles.html">📝 Titles</a>
-    <a href="difficulty.html">📊 Difficulty</a>
-    <a href="analyzer.html">🔍 Analyzer</a>
+<div class="main">
+  <div class="card">
+    <h1>Questions SEO</h1>
+    <input id="keyword" placeholder="Ex: cuisine">
+    <button id="btn">Générer</button>
+    <div id="result"></div>
   </div>
-
-  <div class="main">
-
-    <div class="tool-box">
-
-      <h1>Générateur de questions</h1>
-
-      <div class="input-group">
-        <input id="keyword" placeholder="Ex: cuisine">
-        <button onclick="run()">Générer</button>
-      </div>
-
-      <div id="result" class="results-area"></div>
-
-    </div>
-
-  </div>
-
 </div>
 
 <script>
-async function run(){
+document.getElementById("btn").addEventListener("click", async () => {
 
-  const keyword = document.getElementById("keyword").value.trim();
+  const keyword = document.getElementById("keyword").value;
   const result = document.getElementById("result");
 
-  if(!keyword){
-    result.innerHTML = "⚠️ Entrez un mot-clé";
-    return;
-  }
-
-  result.innerHTML = "⏳ Chargement...";
+  result.innerHTML = "⏳ Loading...";
 
   try{
-    const res = await fetch("/api/questions",{
+    const res = await fetch("/api/questions", {
       method:"POST",
       headers:{ "Content-Type":"application/json" },
       body:JSON.stringify({ keyword })
@@ -61,20 +54,13 @@ async function run(){
 
     const data = await res.json();
 
-    if(!res.ok || data.error){
-      result.innerHTML = "❌ Erreur serveur";
-      return;
-    }
-
-    result.innerHTML = data.map(q => `
-      <div class="result-item">❓ ${q}</div>
-    `).join("");
+    result.innerHTML = data.map(q => `<div class="item">${q}</div>`).join("");
 
   }catch{
-    result.innerHTML = "❌ Erreur serveur";
+    result.innerHTML = "❌ Error";
   }
 
-}
+});
 </script>
 
 </body>

@@ -1,45 +1,60 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="fr">
 <head>
-  <title>SEO Dashboard</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<title>SEO Tool Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body { margin:0; font-family:Arial; display:flex; background:#f5f6fa; }
+.sidebar { width:220px; height:100vh; background:#0f172a; color:white; padding:20px; }
+.sidebar a { display:block; color:#cbd5e1; text-decoration:none; margin:10px 0; padding:8px; }
+.sidebar a:hover { background:#1e293b; color:white; }
+.main { flex:1; padding:40px; }
+.grid { display:grid; grid-template-columns:repeat(2,200px); gap:20px; }
+.card {
+  background:white;
+  padding:20px;
+  border-radius:12px;
+  text-align:center;
+  cursor:pointer;
+  box-shadow:0 10px 20px rgba(0,0,0,0.1);
+}
+.card:hover { transform:scale(1.05); }
+</style>
 </head>
 
 <body>
 
-<div class="app">
+<div class="sidebar">
+  <h2>🚀 SEO Tool</h2>
+  <a href="index.html">🏠 Dashboard</a>
+  <a href="keyword.html">🔑 Keywords</a>
+  <a href="questions.html">❓ Questions</a>
+  <a href="titles.html">📝 Titles</a>
+  <a href="difficulty.html">📊 Difficulty</a>
+  <a href="analyzer.html">🔍 Analyzer</a>
+</div>
 
-  <!-- SIDEBAR -->
-  <div class="sidebar">
-    <h2>🚀 SEO Tool</h2>
-    <a href="index.html">🏠 Dashboard</a>
-    <a href="keyword.html">🔑 Keywords</a>
-    <a href="questions.html">❓ Questions</a>
-    <a href="titles.html">📝 Titles</a>
-    <a href="difficulty.html">📊 Difficulty</a>
-    <a href="analyzer.html">🔍 Analyzer</a>
-  </div>
+<div class="main">
 
-  <!-- CONTENT -->
-  <div class="main">
+  <h1>Tableau de bord</h1>
 
-    <h1>Dashboard</h1>
-    <p>Welcome to your SEO tools</p>
-
-    <div class="cards">
-
-      <a href="keyword.html" class="card">🔑 Keywords</a>
-      <a href="questions.html" class="card">❓ Questions</a>
-      <a href="titles.html" class="card">📝 Titles</a>
-      <a href="difficulty.html" class="card">📊 Difficulty</a>
-      <a href="analyzer.html" class="card">🔍 Analyzer</a>
-
-    </div>
-
+  <div class="grid">
+    <div class="card" onclick="go('keyword.html')">🔑 Keywords</div>
+    <div class="card" onclick="go('questions.html')">❓ Questions</div>
+    <div class="card" onclick="go('titles.html')">📝 Titles</div>
+    <div class="card" onclick="go('difficulty.html')">📊 Difficulty</div>
+    <div class="card" onclick="go('analyzer.html')">🔍 Analyzer</div>
   </div>
 
 </div>
+
+<script>
+function go(page){
+  window.location.href = page;
+}
+</script>
 
 </body>
 </html>
