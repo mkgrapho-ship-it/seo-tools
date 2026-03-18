@@ -9,7 +9,8 @@ const titles = require("./engines/title-engine");
 const app = express();
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: "1mb" }));
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
 /* =======================
@@ -77,59 +78,66 @@ app.post("/api/titles", (req, res) => {
 
 
 /* =======================
-SEO ANALYZER (GET + POST)
+SEO ANALYZER (ROBUST)
 ======================= */
 
-// GET (pour navigateur)
-app.get("/api/analyze", async (req, res) => {
-
-  const url = req.query.url;
+async function analyzePage(url) {
 
   if (!url || !url.startsWith("http")) {
-    return res.json({ error: "URL invalide" });
+    return { error: "URL invalide" };
   }
 
   try {
 
     const response = await axios.get(url, {
       timeout: 8000,
+      maxRedirects: 5,
       headers: {
-        "User-Agent": "Mozilla/5.0"
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36",
+        "Accept-Language": "en-US,en;q=0.9"
       },
       validateStatus: () => true
     });
 
+    // ⚠️ Vérification importante
+    if (!response.data || typeof response.data !== "string") {
+      return { error: "Contenu invalide" };
+    }
+
     const $ = cheerio.load(response.data);
 
-    const title = $("title").text();
+    const title = $("title").text().trim();
     const description = $('meta[name="description"]').attr("content");
-    const h1 = $("h1").length;
+    const h1Count = $("h1").length;
     const images = $("img").length;
     const imagesAlt = $('img[alt]').length;
 
-    res.json({
-      title: title ? "OK" : "Missing",
-      description: description ? "OK" : "Missing",
-      h1: h1 > 0 ? "OK" : "Missing",
+    return {
+      title: title || null,
+      description: description || null,
+      h1: h1Count,
       images,
       imagesAlt
-    });
+    };
 
   } catch (e) {
-    console.log(e.message);
-    res.json({ error: "Impossible d'analyser ce site" });
+    console.log("Analyze error:", e.message);
+
+    return {
+      error: "Site bloqué ou inaccessible",
+      details: e.message
+    };
   }
 
+}
+
+
+// ✅ UNE SEULE ROUTE (GET uniquement)
+app.get("/api/analyze", async (req, res) => {
+  const result = await analyzePage(req.query.url);
+  res.json(result);
 });
-
-// POST (pour ton frontend)
-app.post("/api/analyze", async (req, res) => {
-
-  req.query.url = req.body.url;
-  app._router.handle(req, res, () => {}, "get");
-
-});
-
 
 /* =======================
 STATUS (IMPORTANT)
