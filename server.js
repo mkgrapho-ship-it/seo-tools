@@ -2,11 +2,17 @@ const express = require("express");
 const cors = require("cors");
 const axios = require("axios");
 const cheerio = require("cheerio");
+const https = require("https"); // ✅ IMPORTANT
 
 const questions = require("./engines/question-engine");
 const titles = require("./engines/title-engine");
 
 const app = express();
+
+// ✅ SSL FIX (CRITIQUE)
+const agent = new https.Agent({
+  rejectUnauthorized: false
+});
 
 app.use(cors());
 app.use(express.json({ limit: "1mb" }));
@@ -58,7 +64,6 @@ app.post("/api/keywords", async (req, res) => {
 
 });
 
-
 /* =======================
 QUESTIONS
 ======================= */
@@ -66,7 +71,6 @@ QUESTIONS
 app.post("/api/questions", (req, res) => {
   res.json(questions(req.body.keyword));
 });
-
 
 /* =======================
 TITLES
@@ -76,9 +80,8 @@ app.post("/api/titles", (req, res) => {
   res.json(titles(req.body.keyword));
 });
 
-
 /* =======================
-SEO ANALYZER (ROBUST)
+SEO ANALYZER (FINAL)
 ======================= */
 
 async function analyzePage(url) {
@@ -92,6 +95,7 @@ async function analyzePage(url) {
     const response = await axios.get(url, {
       timeout: 8000,
       maxRedirects: 5,
+      httpsAgent: agent, // ✅ FIX SSL
       headers: {
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36",
@@ -100,7 +104,6 @@ async function analyzePage(url) {
       validateStatus: () => true
     });
 
-    // ⚠️ Vérification importante
     if (!response.data || typeof response.data !== "string") {
       return { error: "Contenu invalide" };
     }
@@ -132,21 +135,19 @@ async function analyzePage(url) {
 
 }
 
-
-// ✅ UNE SEULE ROUTE (GET uniquement)
+// ✅ UNE SEULE ROUTE
 app.get("/api/analyze", async (req, res) => {
   const result = await analyzePage(req.query.url);
   res.json(result);
 });
 
 /* =======================
-STATUS (IMPORTANT)
+STATUS
 ======================= */
 
 app.get("/api/status", (req, res) => {
   res.json({ status: "ok" });
 });
-
 
 /* =======================
 SERVER
