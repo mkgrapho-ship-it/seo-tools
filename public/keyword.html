@@ -1,235 +1,72 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
-
-<meta charset="UTF-8">
-<title>Free Keyword Generator Tool</title>
-
-<style>
-
-body{
-font-family:Arial, Helvetica, sans-serif;
-background:#f5f7fb;
-margin:0;
-}
-
-header{
-background:#111827;
-color:white;
-padding:15px 30px;
-font-size:20px;
-font-weight:bold;
-}
-
-.nav{
-margin-top:10px;
-}
-
-.nav a{
-color:white;
-margin-right:20px;
-text-decoration:none;
-font-size:14px;
-}
-
-.container{
-max-width:1100px;
-margin:auto;
-padding:40px;
-}
-
-h1{
-margin-bottom:20px;
-}
-
-input{
-padding:12px;
-width:350px;
-border:1px solid #ddd;
-border-radius:6px;
-}
-
-button{
-padding:12px 15px;
-margin-left:5px;
-border:none;
-background:#2563eb;
-color:white;
-border-radius:6px;
-cursor:pointer;
-}
-
-button:hover{
-background:#1e40af;
-}
-
-table{
-margin-top:30px;
-border-collapse:collapse;
-width:100%;
-background:white;
-border-radius:6px;
-overflow:hidden;
-}
-
-th,td{
-padding:12px;
-border-bottom:1px solid #eee;
-text-align:left;
-}
-
-th{
-background:#f9fafb;
-}
-
-.copy{
-cursor:pointer;
-color:#2563eb;
-font-weight:bold;
-}
-
-</style>
-
+  <title>Keyword Generator</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<header>
-
-SEO Tools
-
-<div class="nav">
-<a href="/">Home</a>
-<a href="/keyword.html">Keyword Generator</a>
-<a href="/questions.html">Keyword Questions</a>
-<a href="/titles.html">Title Generator</a>
-<a href="/difficulty.html">Keyword Difficulty</a>
-<a href="/analyzer.html">SEO Analyzer</a>
-</div>
-
-</header>
+<nav>
+  <ul>
+    <li><a href="index.html">🏠 Home</a></li>
+    <li><a href="keyword.html">Keywords</a></li>
+    <li><a href="questions.html">Questions</a></li>
+    <li><a href="titles.html">Titles</a></li>
+    <li><a href="difficulty.html">Difficulty</a></li>
+    <li><a href="analyzer.html">Analyzer</a></li>
+  </ul>
+</nav>
 
 <div class="container">
 
-<h1>Keyword Generator</h1>
+  <div class="tool-box">
 
-<input id="keyword" placeholder="Enter keyword">
+    <h1>Keyword Generator</h1>
 
-<button onclick="search()">Search</button>
+    <div class="input-group">
+      <input id="keyword" placeholder="Enter keyword">
+      <button onclick="run()">Generate</button>
+    </div>
 
-<button onclick="exportCSV()">Export CSV</button>
+    <div id="result" class="results-area"></div>
 
-<table id="table">
-
-<thead>
-<tr>
-<th>Keyword</th>
-<th>Volume</th>
-<th>CPC</th>
-<th>Difficulty</th>
-<th>Copy</th>
-</tr>
-</thead>
-
-<tbody></tbody>
-
-</table>
+  </div>
 
 </div>
 
 <script>
+async function run(){
 
-let currentData = [];
+  const keyword = document.getElementById("keyword").value;
+  const result = document.getElementById("result");
 
-async function search(){
+  result.innerHTML = "Loading...";
 
-const keyword = document.getElementById("keyword").value.trim();
+  try{
 
-if(!keyword){
-alert("Enter a keyword");
-return;
-}
+    const res = await fetch("/api/keywords",{
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body:JSON.stringify({ keyword })
+    });
 
-const res = await fetch("/api/keywords",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({keyword})
-});
+    const data = await res.json();
 
-const data = await res.json();
+    result.innerHTML = data.map(k =>
+      `<div class="result-item">
+        ${k.keyword} 
+        <span>Vol: ${k.volume}</span>
+      </div>`
+    ).join("");
 
-currentData = data;
-
-const tbody = document.querySelector("#table tbody");
-
-tbody.innerHTML="";
-
-data.forEach(row=>{
-
-const tr = document.createElement("tr");
-
-tr.innerHTML=`
-<td>${row.keyword}</td>
-<td>${row.volume}</td>
-<td>${row.cpc}</td>
-<td>${row.difficulty}</td>
-<td><span class="copy" onclick="copyKeyword(this)">Copy</span></td>
-`;
-
-tbody.appendChild(tr);
-
-});
+  }catch(err){
+    result.innerHTML = "❌ Error";
+  }
 
 }
-
-function copyKeyword(element){
-
-const keyword = element.parentElement.parentElement.children[0].innerText;
-
-navigator.clipboard.writeText(keyword).then(()=>{
-
-element.innerText="Copied ✓";
-
-setTimeout(()=>{
-element.innerText="Copy";
-},1000);
-
-});
-
-}
-
-function exportCSV(){
-
-if(currentData.length === 0){
-alert("No data to export");
-return;
-}
-
-let csv="Keyword,Volume,CPC,Difficulty\n";
-
-currentData.forEach(r=>{
-csv+=`${r.keyword},${r.volume},${r.cpc},${r.difficulty}\n`;
-});
-
-const blob=new Blob([csv],{type:"text/csv"});
-
-const url=URL.createObjectURL(blob);
-
-const a=document.createElement("a");
-
-a.href=url;
-a.download="keywords.csv";
-
-document.body.appendChild(a);
-a.click();
-
-a.remove();
-
-}
-
 </script>
 
 </body>
-
 </html>

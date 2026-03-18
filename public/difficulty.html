@@ -1,32 +1,65 @@
-<h1>Keyword Difficulty</h1>
+<!DOCTYPE html>
+<html>
 
-<input id="keyword">
+<head>
+  <title>Keyword Difficulty</title>
+  <link rel="stylesheet" href="style.css">
+</head>
 
-<button onclick="check()">Check</button>
+<body>
 
-<div id="result"></div>
+<nav>
+  <ul>
+    <li><a href="index.html">🏠 Home</a></li>
+    <li><a href="keyword.html">Keywords</a></li>
+    <li><a href="questions.html">Questions</a></li>
+    <li><a href="titles.html">Titles</a></li>
+    <li><a href="difficulty.html">Difficulty</a></li>
+    <li><a href="analyzer.html">Analyzer</a></li>
+  </ul>
+</nav>
+
+<div class="container">
+  <div class="tool-box">
+
+    <h1>Keyword Difficulty</h1>
+
+    <div class="input-group">
+      <input id="keyword" placeholder="Enter keyword">
+      <button onclick="run()">Analyze</button>
+    </div>
+
+    <div id="result" class="results-area"></div>
+
+  </div>
+</div>
 
 <script>
+function run(){
 
-function check(){
+  const keyword = document.getElementById("keyword").value;
+  const result = document.getElementById("result");
 
-const keyword = document.getElementById("keyword").value
+  if(!keyword){
+    result.innerHTML = "❌ Enter a keyword";
+    return;
+  }
 
-let score = Math.floor(Math.random()*100)
+  const score = Math.floor(Math.random() * 100);
 
-let level = "Easy"
+  let level = "Easy";
+  if(score > 70) level = "Hard";
+  else if(score > 40) level = "Medium";
 
-if(score > 40) level = "Medium"
-if(score > 70) level = "Hard"
-
-document.getElementById("result").innerHTML =
-
-`
-<h2>${keyword}</h2>
-<p>Difficulty : ${score}/100</p>
-<p>${level}</p>
-`
+  result.innerHTML = `
+    <div class="result-item">
+      Keyword: ${keyword}<br>
+      Difficulty: ${score}/100 (${level})
+    </div>
+  `;
 
 }
-
 </script>
+
+</body>
+</html>

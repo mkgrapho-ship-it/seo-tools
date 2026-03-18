@@ -2,55 +2,65 @@
 <html>
 
 <head>
-<title>SEO Title Generator</title>
+  <title>Title Generator</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<h1>SEO Title Generator</h1>
+<nav>
+  <ul>
+    <li><a href="index.html">🏠 Home</a></li>
+    <li><a href="keyword.html">Keywords</a></li>
+    <li><a href="questions.html">Questions</a></li>
+    <li><a href="titles.html">Titles</a></li>
+    <li><a href="difficulty.html">Difficulty</a></li>
+    <li><a href="analyzer.html">Analyzer</a></li>
+  </ul>
+</nav>
 
-<input id="keyword" placeholder="keyword">
+<div class="container">
+  <div class="tool-box">
 
-<button onclick="generate()">Generate</button>
+    <h1>Title Generator</h1>
 
-<ul id="results"></ul>
+    <div class="input-group">
+      <input id="keyword" placeholder="Enter keyword">
+      <button onclick="run()">Generate</button>
+    </div>
+
+    <div id="result" class="results-area"></div>
+
+  </div>
+</div>
 
 <script>
+async function run(){
 
-async function generate(){
+  const keyword = document.getElementById("keyword").value;
+  const result = document.getElementById("result");
 
-const keyword = document.getElementById("keyword").value;
+  result.innerHTML = "Loading...";
 
-const response = await fetch("/api/titles",{
+  try{
 
-method:"POST",
+    const res = await fetch("/api/titles",{
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body:JSON.stringify({ keyword })
+    });
 
-headers:{
-"Content-Type":"application/json"
-},
+    const data = await res.json();
 
-body:JSON.stringify({keyword})
+    result.innerHTML = data.map(t =>
+      `<div class="result-item">${t}</div>`
+    ).join("");
 
-});
-
-const data = await response.json();
-
-const list = document.getElementById("results");
-
-list.innerHTML="";
-
-data.forEach(t=>{
-
-const li = document.createElement("li");
-
-li.textContent = t;
-
-list.appendChild(li);
-
-});
+  }catch(err){
+    result.innerHTML = "❌ Error";
+  }
 
 }
-
 </script>
 
 </body>
