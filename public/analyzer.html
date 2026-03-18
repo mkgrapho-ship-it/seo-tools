@@ -2,7 +2,7 @@
 <html>
 
 <head>
-<title>SEO Analyzer</title>
+  <title>SEO Analyzer</title>
 </head>
 
 <body>
@@ -15,10 +15,32 @@
 <div id="result"></div>
 
 <script>
+
+// ✅ SCORE SEO
+function calculateScore(data){
+
+  let score = 0;
+
+  if(data.title) score += 25;
+  if(data.description) score += 25;
+  if(data.h1 > 0) score += 25;
+
+  const altRatio = data.images > 0 ? data.imagesAlt / data.images : 1;
+  score += Math.round(altRatio * 25);
+
+  return score;
+}
+
+// ✅ ANALYSE
 async function analyze(){
 
-  const url = document.getElementById("url").value;
+  const url = document.getElementById("url").value.trim();
   const result = document.getElementById("result");
+
+  if(!url){
+    result.innerHTML = "❌ Please enter a URL";
+    return;
+  }
 
   result.innerHTML = "Loading...";
 
@@ -34,12 +56,25 @@ async function analyze(){
       return;
     }
 
+    const score = calculateScore(data);
+
     result.innerHTML = `
-    <p>Title: ${data.title}</p>
-    <p>Description: ${data.description || "Missing"}</p>
-    <p>H1: ${data.h1}</p>
-    <p>Images: ${data.images}</p>
-    <p>Images ALT: ${data.imagesAlt}</p>
+      <h2>SEO Score: ${score}/100</h2>
+
+      <ul>
+        <li>${data.title ? "✅ Title OK" : "❌ Missing Title"}</li>
+        <li>${data.description ? "✅ Description OK" : "❌ Missing Description"}</li>
+        <li>${data.h1 > 0 ? "✅ H1 OK" : "❌ Missing H1"}</li>
+        <li>${data.imagesAlt === data.images ? "✅ All images have ALT" : "⚠️ Missing ALT tags"}</li>
+      </ul>
+
+      <hr>
+
+      <p><b>Title:</b> ${data.title}</p>
+      <p><b>Description:</b> ${data.description || "Missing"}</p>
+      <p><b>H1 count:</b> ${data.h1}</p>
+      <p><b>Images:</b> ${data.images}</p>
+      <p><b>Images ALT:</b> ${data.imagesAlt}</p>
     `;
 
   }catch(err){
@@ -50,6 +85,7 @@ async function analyze(){
   }
 
 }
+
 </script>
 
 </body>
