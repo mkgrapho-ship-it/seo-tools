@@ -8,29 +8,32 @@
 
 <body>
 
-<nav>
-  <ul>
-    <li><a href="index.html">🏠 Home</a></li>
-    <li><a href="keyword.html">Keywords</a></li>
-    <li><a href="questions.html">Questions</a></li>
-    <li><a href="titles.html">Titles</a></li>
-    <li><a href="difficulty.html">Difficulty</a></li>
-    <li><a href="analyzer.html">Analyzer</a></li>
-  </ul>
-</nav>
+<div class="app">
 
-<div class="container">
+  <div class="sidebar">
+    <h2>🚀 SEO Tool</h2>
+    <a href="index.html">🏠 Dashboard</a>
+    <a href="keyword.html">🔑 Keywords</a>
+    <a href="questions.html">❓ Questions</a>
+    <a href="titles.html">📝 Titles</a>
+    <a href="difficulty.html">📊 Difficulty</a>
+    <a href="analyzer.html">🔍 Analyzer</a>
+  </div>
 
-  <div class="tool-box">
+  <div class="main">
 
-    <h1>Keyword Difficulty</h1>
+    <div class="tool-box">
 
-    <div class="input-group">
-      <input id="keyword" placeholder="Enter keyword">
-      <button onclick="run()">Check</button>
+      <h1>Difficulté des mots clés</h1>
+
+      <div class="input-group">
+        <input id="keyword" placeholder="Ex: cuisine">
+        <button onclick="run()">Vérifier</button>
+      </div>
+
+      <div id="result" class="results-area"></div>
+
     </div>
-
-    <div id="result" class="result"></div>
 
   </div>
 
@@ -39,40 +42,38 @@
 <script>
 async function run(){
 
-  const keyword = document.getElementById("keyword").value;
+  const keyword = document.getElementById("keyword").value.trim();
   const result = document.getElementById("result");
 
   if(!keyword){
-    result.innerHTML = "❌ Enter a keyword";
+    result.innerHTML = "⚠️ Entrez un mot-clé";
     return;
   }
 
-  result.innerHTML = "Loading...";
+  result.innerHTML = "⏳ Analyse...";
 
   try{
+    const res = await fetch("/api/difficulty",{
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body:JSON.stringify({ keyword })
+    });
 
-    const res = await fetch("/api/difficulty?keyword=" + encodeURIComponent(keyword));
     const data = await res.json();
 
-    console.log(data);
-
-    if(data.error){
-      result.innerHTML = "❌ " + data.error;
+    if(!res.ok || data.error){
+      result.innerHTML = "❌ Erreur serveur";
       return;
     }
 
-    // Gestion flexible selon backend
-    const difficulty = data.difficulty ?? data.score ?? data;
-
     result.innerHTML = `
       <div class="result-item">
-        Difficulty: <strong>${difficulty}</strong>
+        📊 Difficulté : <strong>${data.score}/100</strong>
       </div>
     `;
 
-  }catch(err){
-    console.error(err);
-    result.innerHTML = "❌ Server error";
+  }catch{
+    result.innerHTML = "❌ Erreur serveur";
   }
 
 }
