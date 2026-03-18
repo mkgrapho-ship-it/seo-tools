@@ -3,9 +3,74 @@
 
 <head>
   <title>SEO Analyzer</title>
+
+  <style>
+    body {
+      font-family: Arial;
+      background: #f5f7fb;
+      padding: 40px;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    input {
+      width: 70%;
+      padding: 10px;
+      margin-right: 10px;
+    }
+
+    button {
+      padding: 10px 20px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    .score {
+      font-size: 26px;
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .good { color: green; }
+    .bad { color: red; }
+    .warn { color: orange; }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      margin: 8px 0;
+    }
+
+    .box {
+      background: #fafafa;
+      padding: 15px;
+      margin-top: 15px;
+      border-radius: 6px;
+    }
+
+  </style>
+
 </head>
 
 <body>
+
+<div class="container">
 
 <h1>SEO Analyzer</h1>
 
@@ -14,9 +79,10 @@
 
 <div id="result"></div>
 
+</div>
+
 <script>
 
-// ✅ SCORE SEO
 function calculateScore(data){
 
   let score = 0;
@@ -31,14 +97,13 @@ function calculateScore(data){
   return score;
 }
 
-// ✅ ANALYSE
 async function analyze(){
 
   const url = document.getElementById("url").value.trim();
   const result = document.getElementById("result");
 
   if(!url){
-    result.innerHTML = "❌ Please enter a URL";
+    result.innerHTML = "❌ Enter URL";
     return;
   }
 
@@ -49,8 +114,6 @@ async function analyze(){
     const res = await fetch("/api/analyze?url=" + encodeURIComponent(url));
     const data = await res.json();
 
-    console.log(data);
-
     if(data.error){
       result.innerHTML = "❌ " + data.error;
       return;
@@ -59,27 +122,37 @@ async function analyze(){
     const score = calculateScore(data);
 
     result.innerHTML = `
-      <h2>SEO Score: ${score}/100</h2>
+      <div class="score">SEO Score: <b>${score}/100</b></div>
 
       <ul>
-        <li>${data.title ? "✅ Title OK" : "❌ Missing Title"}</li>
-        <li>${data.description ? "✅ Description OK" : "❌ Missing Description"}</li>
-        <li>${data.h1 > 0 ? "✅ H1 OK" : "❌ Missing H1"}</li>
-        <li>${data.imagesAlt === data.images ? "✅ All images have ALT" : "⚠️ Missing ALT tags"}</li>
+        <li class="${data.title ? 'good' : 'bad'}">
+          ${data.title ? "✔ Title OK" : "✖ Missing Title"}
+        </li>
+
+        <li class="${data.description ? 'good' : 'bad'}">
+          ${data.description ? "✔ Description OK" : "✖ Missing Description"}
+        </li>
+
+        <li class="${data.h1 > 0 ? 'good' : 'bad'}">
+          ${data.h1 > 0 ? "✔ H1 OK" : "✖ Missing H1"}
+        </li>
+
+        <li class="${data.imagesAlt === data.images ? 'good' : 'warn'}">
+          ${data.imagesAlt === data.images ? "✔ ALT OK" : "⚠ Missing ALT"}
+        </li>
       </ul>
 
-      <hr>
-
-      <p><b>Title:</b> ${data.title}</p>
-      <p><b>Description:</b> ${data.description || "Missing"}</p>
-      <p><b>H1 count:</b> ${data.h1}</p>
-      <p><b>Images:</b> ${data.images}</p>
-      <p><b>Images ALT:</b> ${data.imagesAlt}</p>
+      <div class="box">
+        <p><b>Title:</b> ${data.title}</p>
+        <p><b>Description:</b> ${data.description || "Missing"}</p>
+        <p><b>H1:</b> ${data.h1}</p>
+        <p><b>Images:</b> ${data.images}</p>
+        <p><b>Images ALT:</b> ${data.imagesAlt}</p>
+      </div>
     `;
 
   }catch(err){
 
-    console.error(err);
     result.innerHTML = "❌ Error";
 
   }
@@ -89,5 +162,4 @@ async function analyze(){
 </script>
 
 </body>
-
 </html>
